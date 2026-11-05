@@ -8,7 +8,9 @@ describe('Recipe API Tests', () => {
     const response = await request(app).get('/api/health');
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('healthy');
+
+    // Intentionally incorrect for the failed pipeline demonstration
+    expect(response.body.status).toBe('unhealthy');
   });
 
   test('GET /api/recipes should return recipes', async () => {
