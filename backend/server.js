@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const db = require('./database');
@@ -13,8 +14,7 @@ app.get('/api/recipes', (req, res) => {
   db.all("SELECT * FROM recipes ORDER BY created_at DESC", (err, rows) => {
     if (err) {
       console.error('Error fetching recipes:', err);
-      res.status(500).json({ error: 'Failed to fetch recipes' });
-      return;
+      return res.status(500).json({ error: 'Failed to fetch recipes' });
     }
     res.json(rows);
   });
@@ -23,16 +23,17 @@ app.get('/api/recipes', (req, res) => {
 // Get single recipe by ID
 app.get('/api/recipes/:id', (req, res) => {
   const { id } = req.params;
+
   db.get("SELECT * FROM recipes WHERE id = ?", [id], (err, row) => {
     if (err) {
       console.error('Error fetching recipe:', err);
-      res.status(500).json({ error: 'Failed to fetch recipe' });
-      return;
+      return res.status(500).json({ error: 'Failed to fetch recipe' });
     }
+
     if (!row) {
-      res.status(404).json({ error: 'Recipe not found' });
-      return;
+      return res.status(404).json({ error: 'Recipe not found' });
     }
+
     res.json(row);
   });
 });
@@ -40,10 +41,9 @@ app.get('/api/recipes/:id', (req, res) => {
 // Create new recipe
 app.post('/api/recipes', (req, res) => {
   const { name, ingredients, instructions, cookTime } = req.body;
-  
+
   if (!name || !ingredients || !instructions || !cookTime) {
-    res.status(400).json({ error: 'All fields are required' });
-    return;
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
   db.run(
@@ -52,16 +52,15 @@ app.post('/api/recipes', (req, res) => {
     function(err) {
       if (err) {
         console.error('Error creating recipe:', err);
-        res.status(500).json({ error: 'Failed to create recipe' });
-        return;
+        return res.status(500).json({ error: 'Failed to create recipe' });
       }
-      
+
       db.get("SELECT * FROM recipes WHERE id = ?", [this.lastID], (err, row) => {
         if (err) {
           console.error('Error fetching created recipe:', err);
-          res.status(500).json({ error: 'Recipe created but failed to fetch' });
-          return;
+          return res.status(500).json({ error: 'Recipe created but failed to fetch' });
         }
+
         res.status(201).json(row);
       });
     }
@@ -71,30 +70,37 @@ app.post('/api/recipes', (req, res) => {
 // Delete recipe
 app.delete('/api/recipes/:id', (req, res) => {
   const { id } = req.params;
+
   db.run("DELETE FROM recipes WHERE id = ?", [id], function(err) {
     if (err) {
       console.error('Error deleting recipe:', err);
-      res.status(500).json({ error: 'Failed to delete recipe' });
-      return;
+      return res.status(500).json({ error: 'Failed to delete recipe' });
     }
+
     if (this.changes === 0) {
-      res.status(404).json({ error: 'Recipe not found' });
-      return;
+      return res.status(404).json({ error: 'Recipe not found' });
     }
+
     res.json({ message: 'Recipe deleted successfully' });
   });
 });
 
-// Health check endpoint
+// Health check
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
-    port: PORT 
+    port: PORT
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Recipe API server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-});
+// Only start the server when running directly
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Recipe API server running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+  });
+}
+
+// Export Express app for automated testing
+module.exports = app;
