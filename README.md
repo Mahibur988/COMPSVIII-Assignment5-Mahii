@@ -159,3 +159,8 @@ https://github.com/Mahibur988/COMPSVIII-Assignment5-Mahii
 ## Conclusion
 
 This assignment helped me understand how CI/CD pipelines work in real software development. I learned how to create automated tests, configure GitHub Actions, identify failing tests, and fix problems before accepting code changes. Overall, automated testing makes the development process faster and helps improve software reliability.
+## Live Application
+
+**Frontend:** https://recipe-frontend-794151840746.us-central1.run.app
+
+**Backend API Health Check:** https://recipe-backend-794151840746.us-central1.run.app/api/health
